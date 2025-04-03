@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.annotation.Scope;
+import org.springframework.web.context.annotation.RequestScope;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -18,7 +19,7 @@ public class WebRootConfig {
         Class.forName("org.postgresql.Driver");
     }
 
-    @Scope("prototype")  // create this again and again
+    @RequestScope
     @Bean
     public Connection connection(@Value("${app.datasource.url}") String url,
                                  @Value("${app.datasource.username}") String username,

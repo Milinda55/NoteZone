@@ -1,12 +1,25 @@
 package lk.ijse.dep13.springbackend.api;
 
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
 
 @RestController
 @RequestMapping("/users")
 public class UserHttpController {
+
+//    public UserHttpController(Connection connection) {
+//        this.connection = connection;
+//    }
+
+    @Autowired  // if a connection comes, and set for this
+    private Connection connection;
+
+
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
