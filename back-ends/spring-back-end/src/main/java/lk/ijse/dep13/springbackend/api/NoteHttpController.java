@@ -90,9 +90,22 @@ public class NoteHttpController {
     }
 
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    @PatchMapping("/{id:^\\d+$}")
-    public String updateNote(@PathVariable Integer id){
-        return "Update note " + id;
+    @PatchMapping(value = "/{id:^\\d+$}", consumes = "application/json")
+    public Note updateNote(@PathVariable Integer id,
+                           @SessionAttribute("user") String email,
+                           @RequestBody  Note note) throws SQLException {
+        if (email == null) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
+                "This operation only supports for authenticated users");
+        try(var stm = connection
+                .prepareStatement("UPDATE note SET text=?, color=? WHERE id=? AND \"user\"=?")){
+            stm.setString(1, note.getText());
+            stm.setString(2, note.getColor());
+            stm.setInt(3, id);
+            stm.setString(4, email);
+            if (stm.executeUpdate() == 0) throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+            note.setId(id);
+            return note;
+        }
     }
 
     @ResponseStatus(HttpStatus.NO_CONTENT)
@@ -103,7 +116,7 @@ public class NoteHttpController {
         try(var stm = connection.prepareStatement("DELETE FROM note WHERE id=? AND \"user\"=?")){
             stm.setInt(1, id);
             stm.setString(2, email);
-            stm.executeUpdate();
+            if (stm.executeUpdate() == 0) throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
     }
 }
