@@ -17,6 +17,11 @@ public class UserHttpController {
         return "get authenticated user info";
     }
 
+    @PatchMapping("/me")
+    public String updateUser(){
+        return "Update authenticated user information";
+    }
+
     @DeleteMapping("/me")
     public String deleteUser() {
         return "delete authenticated user account";
