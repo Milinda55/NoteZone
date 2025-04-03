@@ -70,26 +70,20 @@ public class NoteHttpController {
     }
 
     @GetMapping("/{id:^\\d+$}")
-    public Note getNote(@PathVariable Integer id, @SessionAttribute("user") String email) {
+    public Note getNote(@PathVariable Integer id, @SessionAttribute("user") String email) throws SQLException {
         if (email == null) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
                 "This operation only supports for authenticated users");
-        try (var stm = connection
-                .prepareStatement("SELECT * FROM note WHERE id=? AND \"user\"=?")) {
+        try (var stm = connection.prepareStatement("SELECT * FROM note WHERE id=? AND \"user\"=?")) {
             stm.setInt(1, id);
-            stm.setString(1, email);
+            stm.setString(2, email);
             ResultSet rst = stm.executeQuery();
             if (!rst.next()) throw new ResponseStatusException(HttpStatus.NOT_FOUND);
             String text = rst.getString("text");
             String color = rst.getString("color");
             return new Note(id, text, color);
-
-
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
         }
     }
 
-    @ResponseStatus(HttpStatus.NO_CONTENT)
     @PatchMapping(value = "/{id:^\\d+$}", consumes = "application/json")
     public Note updateNote(@PathVariable Integer id,
                            @SessionAttribute("user") String email,

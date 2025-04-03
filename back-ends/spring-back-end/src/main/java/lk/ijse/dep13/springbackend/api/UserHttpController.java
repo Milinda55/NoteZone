@@ -51,7 +51,7 @@ public class UserHttpController {
     }
 
     @GetMapping("/me")
-    public User getUserInfo(@SessionAttribute(value = "user",required = false) String email ) throws SQLException {
+    public User getUserInfo(@SessionAttribute("user") String email ) throws SQLException {
         if (email == null)  throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid email");
         try(var stm = connection.prepareStatement("SELECT * FROM \"user\" WHERE email=?")){
             stm.setString(1, email);
