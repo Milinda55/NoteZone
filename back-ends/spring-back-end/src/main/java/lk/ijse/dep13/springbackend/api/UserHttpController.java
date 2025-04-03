@@ -1,6 +1,7 @@
 package lk.ijse.dep13.springbackend.api;
 
 
+import jakarta.servlet.http.Part;
 import lk.ijse.dep13.springbackend.entity.User;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,7 +9,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.io.IOException;
 import java.sql.*;
+import java.util.Base64;
 import java.util.Objects;
 
 @RestController
@@ -62,8 +65,34 @@ public class UserHttpController {
 
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @PatchMapping("/me")
-    public String updateUser(){
+    public String updateUser(@SessionAttribute(value = "user",required = false) String email ,
+                             @RequestPart("fullName") String fullName ,
+                             @RequestPart(value = "profilePicture",required = false) Part profilePicture,
+                             @RequestPart(value = "password",required = false) String password) throws SQLException, IOException {
+        if(email == null)  throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid email");
+        try(var stm1 = connection
+                .prepareStatement("UPDATE \"user\" SET full_name=?,password=? WHERE email = ?");
+            var stm2 = connection
+                    .prepareStatement("Select password FROM \"user\" WHERE email=?")) {
+
+            stm2.setString(1, email);
+            ResultSet rst = stm1.executeQuery();
+            rst.next();
+            String encryptedPassword = rst.getString("password");
+            stm1.setString(1, fullName);
+            stm1.setString(2, generateBase64DataUrl(profilePicture));
+            stm2.setString(3, password != null ? DigestUtils.sha256Hex(password) : encryptedPassword);
+
+
+        }
         return "Update authenticated user information";
+    }
+    private String generateBase64DataUrl (Part part) throws IOException {
+        byte[] bytes = part.getInputStream().readAllBytes();
+        String mimeType = part.getContentType();
+        String base64Data = Base64.getEncoder().encodeToString(bytes);
+        return "data:" + mimeType + ";base64," + base64Data;
+
     }
 
     @ResponseStatus(HttpStatus.NO_CONTENT)
@@ -72,3 +101,5 @@ public class UserHttpController {
         return "delete authenticated user account";
     }
 }
+
+
