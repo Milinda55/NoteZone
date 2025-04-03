@@ -63,42 +63,46 @@ public class UserHttpController {
         }
     }
 
-    @ResponseStatus(HttpStatus.NO_CONTENT)
     @PatchMapping("/me")
-    public String updateUser(@SessionAttribute(value = "user",required = false) String email ,
-                             @RequestPart("fullName") String fullName ,
-                             @RequestPart(value = "profilePicture",required = false) Part profilePicture,
-                             @RequestPart(value = "password",required = false) String password) throws SQLException, IOException {
-        if(email == null)  throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid email");
-        try(var stm1 = connection
-                .prepareStatement("UPDATE \"user\" SET full_name=?,password=? WHERE email = ?");
-            var stm2 = connection
-                    .prepareStatement("Select password FROM \"user\" WHERE email=?")) {
-
+    public User updateUser(@SessionAttribute("user") String email,
+                           @RequestPart("fullName") String fullName,
+                           @RequestPart(value = "profilePicture", required = false) Part profilePicture,
+                           @RequestPart(value = "password", required = false) String password) throws SQLException, IOException {
+        if (email == null) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid email");
+        try (var stm = connection
+                .prepareStatement("UPDATE \"user\" SET full_name=?, profile_picture=?, password=? WHERE email=?");
+             var stm2 = connection.prepareStatement("SELECT password FROM \"user\" WHERE email=?")) {
             stm2.setString(1, email);
-            ResultSet rst = stm1.executeQuery();
+            ResultSet rst = stm2.executeQuery();
             rst.next();
-            String encryptedPassword = rst.getString("password");
-            stm1.setString(1, fullName);
-            stm1.setString(2, generateBase64DataUrl(profilePicture));
-            stm2.setString(3, password != null ? DigestUtils.sha256Hex(password) : encryptedPassword);
-
-
+            String encryptedPassword = password != null ? DigestUtils.sha256Hex(password):
+                    rst.getString("password");
+            String base64DataUrl = profilePicture != null ? generateBase64DataUrl(profilePicture) : null;
+            stm.setString(1, fullName);
+            stm.setString(2, base64DataUrl);
+            stm.setString(3, encryptedPassword);
+            stm.setString(4, email);
+            stm.executeUpdate();
+            return new User(fullName, email, encryptedPassword,
+                    Objects.requireNonNullElse(base64DataUrl, User.DEFAULT_PROFILE_PICTURE));
         }
-        return "Update authenticated user information";
     }
-    private String generateBase64DataUrl (Part part) throws IOException {
+    private String generateBase64DataUrl(Part part) throws IOException {
         byte[] bytes = part.getInputStream().readAllBytes();
         String mimeType = part.getContentType();
         String base64Data = Base64.getEncoder().encodeToString(bytes);
         return "data:" + mimeType + ";base64," + base64Data;
-
     }
 
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping("/me")
-    public String deleteUser() {
-        return "delete authenticated user account";
+    public void deleteUser(@SessionAttribute("user") String email) throws SQLException {
+        if (email == null) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid email");
+        try (PreparedStatement stm = connection.prepareStatement("DELETE FROM \"user\" WHERE email=?")) {
+            stm.setString(1, email);
+            stm.executeUpdate();
+
+        }
     }
 }
 
