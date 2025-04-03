@@ -32,6 +32,9 @@ importers:
       '@tailwindcss/postcss':
         specifier: ^4.1.2
         version: 4.1.2
+      bootstrap-icons:
+        specifier: ^1.11.3
+        version: 1.11.3
       rxjs:
         specifier: ~7.8.0
         version: 7.8.2
@@ -1928,6 +1931,9 @@ packages:
 
   boolbase@1.0.0:
     resolution: {integrity: sha512-JZOSA7Mo9sNGB8+UjSgzdLtokWAky1zbztM3WRLCbZ70/3cTANmQmOdR7y2g+J0e2WXywy1yS468tY+IruqEww==}
+
+  bootstrap-icons@1.11.3:
+    resolution: {integrity: sha512-+3lpHrCw/it2/7lBL15VR0HEumaBss0+f/Lb6ZvHISn1mlK83jjFpooTLsMWbIjJMDjDjOExMsTxnXSIT4k4ww==}
 
   brace-expansion@1.1.11:
     resolution: {integrity: sha512-iCuPHDFgrHX7H2vEI/5xpz07zSHB00TpugqhmYtVmMO6518mCuRMoOYFldEBl0g187ufozdaHgWKcYFb61qGiA==}
@@ -6340,6 +6346,8 @@ snapshots:
       multicast-dns: 7.2.5
 
   boolbase@1.0.0: {}
+
+  bootstrap-icons@1.11.3: {}
 
   brace-expansion@1.1.11:
     dependencies:

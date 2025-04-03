@@ -1,6 +1,20 @@
 /* You can add global styles to this file, and also import other style files */
 
+ @use 'bootstrap-icons' as *;
+
 @layer theme, base, components, utilities;
 @import "tailwindcss/theme.css" layer(theme);
 @import "tailwindcss/preflight.css" layer(base);
 @import "tailwindcss/utilities.css" layer(utilities);
+
+
+
+.input {
+  @apply
+  border rounded w-full p-2 mt-1 placeholder-gray-600 focus:outline-sky-800
+}
+
+.button {
+  @apply
+  border px-3 py-1 rounded cursor-pointer hover:bg-sky-800 hover:text-white hover:border-black
+}
