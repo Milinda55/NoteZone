@@ -37,7 +37,7 @@
 
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/your-username/NoteZone.git
+   git clone https://github.com/Milinda55/NoteZone.git
    ```
 
 2. **Navigate to the project directory:**
