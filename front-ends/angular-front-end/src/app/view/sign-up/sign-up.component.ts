@@ -8,4 +8,14 @@ import { Component } from '@angular/core';
 })
 export class SignUpComponent {
 
+  user = {
+    fullName: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
+  }
+
+  value = 'ijse';
+
+
 }
